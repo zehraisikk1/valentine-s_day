@@ -39,8 +39,9 @@
             border-radius: 40px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             position: relative;
-            z-index: 5; /* Kutuyu öne aldık */
-            min-width: 350px;
+            z-index: 5;
+            width: 400px;
+            min-height: 250px;
             backdrop-filter: blur(10px);
             border: 2px solid white;
         }
@@ -48,23 +49,22 @@
         h1 {
             color: #d63384;
             font-size: 32px;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
         }
 
         .buttons {
+            position: relative;
+            height: 100px; /* Butonların hareket alanı için yükseklik */
             display: flex;
             justify-content: center;
-            gap: 30px;
-            position: relative;
-            min-height: 80px;
             align-items: center;
         }
 
         button {
-            padding: 15px 40px;
-            font-size: 22px;
+            padding: 15px 35px;
+            font-size: 20px;
             border: none;
-            border-radius: 20px;
+            border-radius: 15px;
             cursor: pointer;
             font-weight: bold;
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -74,12 +74,8 @@
             background: linear-gradient(45deg, #ff4d6d, #ff758f);
             color: white;
             box-shadow: 0 10px 20px rgba(255, 77, 109, 0.4);
-            position: relative;
-            z-index: 20; /* Yes butonu her şeyin üstünde */
-        }
-
-        #yesBtn:hover {
-            transform: scale(1.15);
+            z-index: 20;
+            margin-right: 120px; /* No butonu için boşluk */
         }
 
         #noBtn {
@@ -87,13 +83,14 @@
             color: white;
             position: absolute;
             z-index: 10;
+            left: 55%; /* Başlangıç pozisyonu */
             transition: all 0.15s ease-out;
             user-select: none;
+            white-space: nowrap;
         }
 
-        /* Kutlama Ekranı */
         #successScreen {
-            display: none; /* Başlangıçta tamamen gizli */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -115,9 +112,8 @@
         }
 
         @keyframes heartBeat {
-            0% { transform: scale(1); }
+            0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
 
         .big-heart {
@@ -130,7 +126,7 @@
 
     <div class="container" id="quizContainer">
         <h1>Will you be my Valentine? ❤️</h1>
-        <div class="buttons">
+        <div class="buttons" id="btnWrapper">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
             <button id="noBtn" onmouseover="moveButton()" onmousedown="moveButton()">No</button>
         </div>
@@ -139,15 +135,15 @@
     <div id="successScreen">
         <div class="big-heart">💖</div>
         <div class="success-message">YAY! I KNEW IT! 🥰</div>
-        <p style="font-size: 24px; color: #d63384;">See you on February 14th! 🌹</p>
+        <p style="font-size: 24px; color: #d63384; font-weight: bold;">See you on February 14th! 🌹</p>
     </div>
 
     <script>
-        // Kalp yağmuru
+        // Arka plan kalpleri
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('heart-bg');
-            heart.innerHTML = ['❤️', '💖', '💗'][Math.floor(Math.random() * 3)];
+            heart.innerHTML = '❤️';
             heart.style.left = Math.random() * 100 + 'vw';
             heart.style.animationDuration = Math.random() * 2 + 3 + 's';
             document.body.appendChild(heart);
@@ -156,58 +152,54 @@
         setInterval(createHeart, 300);
 
         const noBtn = document.getElementById('noBtn');
-        const container = document.getElementById('quizContainer');
+        const wrapper = document.getElementById('btnWrapper');
 
         function moveButton() {
-            const rect = container.getBoundingClientRect();
-            const padding = 20;
+            // Butonu "buttons" divi (wrapper) içinde hareket ettiriyoruz
+            const rect = wrapper.getBoundingClientRect();
             
-            // Container sınırları içinde rastgele pozisyon
-            const maxX = rect.width - noBtn.offsetWidth - padding;
-            const maxY = rect.height - noBtn.offsetHeight - padding;
+            // Butonun wrapper dışına çıkmaması için sınırlar
+            const maxX = rect.width - noBtn.offsetWidth;
+            const maxY = rect.height - noBtn.offsetHeight;
 
-            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+            // Rastgele yeni pozisyon (wrapper koordinatlarına göre)
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
 
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
         function celebrate() {
-            // Ana ekranı gizle, kutlama ekranını göster
             document.getElementById('quizContainer').style.display = 'none';
             const screen = document.getElementById('successScreen');
             screen.style.display = 'flex';
 
-            // Konfeti fırtınası
             const duration = 10 * 1000;
             const end = Date.now() + duration;
 
             (function frame() {
                 confetti({
-                    particleCount: 5,
+                    particleCount: 7,
                     angle: 60,
                     spread: 55,
                     origin: { x: 0 },
                     colors: ['#ff4d6d', '#ff758f']
                 });
                 confetti({
-                    particleCount: 5,
+                    particleCount: 7,
                     angle: 120,
                     spread: 55,
                     origin: { x: 1 },
                     colors: ['#ff4d6d', '#ff758f']
                 });
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
+                if (Date.now() < end) requestAnimationFrame(frame);
             }());
 
-            // Kalp şeklinde büyük patlama
             confetti({
-                particleCount: 100,
-                spread: 70,
+                particleCount: 150,
+                spread: 100,
                 origin: { y: 0.6 }
             });
         }
