@@ -18,6 +18,7 @@
             touch-action: none;
         }
 
+        /* Arka plan kalp yağmuru */
         .heart-bg {
             position: fixed;
             top: -10%;
@@ -35,12 +36,13 @@
         .container {
             text-align: center;
             background: rgba(255, 255, 255, 0.95);
-            padding: 50px;
+            padding: 60px;
             border-radius: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             position: relative;
             z-index: 2;
-            min-width: 300px;
+            min-width: 350px;
+            min-height: 200px;
         }
 
         h1 {
@@ -69,14 +71,17 @@
             background-color: #ff4d6d;
             color: white;
             box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+            z-index: 3;
         }
 
         #noBtn {
             background-color: #6c757d;
             color: white;
-            position: absolute; /* Container içinde kalması için absolute yaptık */
-            transition: all 0.2s ease-out;
+            position: absolute;
+            transition: all 0.15s ease-out;
             z-index: 10;
+            /* Dokunmatik ekranlarda basılı tutmayı engellemek için */
+            user-select: none;
         }
 
         .success-screen {
@@ -97,7 +102,7 @@
         <h1 id="questionText">Will you be my Valentine? ❤️</h1>
         <div class="buttons">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">No</button>
+            <button id="noBtn" onmouseover="moveButton()" onmousedown="moveButton()" onclick="return false;">No</button>
         </div>
     </div>
 
@@ -107,7 +112,7 @@
     </div>
 
     <script>
-        // Arka plan kalp yağmuru
+        // Arka plan kalp döngüsü
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('heart-bg');
@@ -124,21 +129,26 @@
         const container = document.getElementById('quizContainer');
 
         function moveButton() {
-            // Container'ın boyutlarını al
+            // Tıklamayı anlık olarak imkansız hale getir
+            noBtn.style.pointerEvents = 'none';
+
             const rect = container.getBoundingClientRect();
-            
-            // Butonun yeni pozisyonunu container sınırları içinde rastgele belirle
-            // Container dışına taşmaması için padding (20px) bıraktık
             const padding = 20;
+            
+            // Butonun container sınırları içerisinde rastgele bir yere ışınlanması
             const maxX = rect.width - noBtn.offsetWidth - padding;
             const maxY = rect.height - noBtn.offsetHeight - padding;
 
             const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
             const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
-            // Pozisyonu uygula
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
+
+            // Hareket bittikten kısa süre sonra fare olaylarını geri aç (bir sonraki kaçış için)
+            setTimeout(() => {
+                noBtn.style.pointerEvents = 'auto';
+            }, 100);
         }
 
         function celebrate() {
@@ -152,16 +162,17 @@
                 if (timeLeft <= 0) return clearInterval(interval);
 
                 confetti({
-                    particleCount: 30,
-                    spread: 60,
+                    particleCount: 35,
+                    spread: 70,
                     origin: { x: Math.random(), y: 0.5 },
                     colors: ['#ff4d6d', '#ff8fa3', '#ffffff'],
                     shapes: [heartShape]
                 });
-            }, 200);
+            }, 250);
 
             container.style.display = 'none';
             document.getElementById('successScreen').style.display = 'block';
+            noBtn.style.display = 'none';
         }
     </script>
 </body>
