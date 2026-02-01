@@ -20,7 +20,6 @@
             touch-action: none;
         }
 
-        /* Arka plan kalpleri */
         .heart {
             position: absolute;
             background: rgba(255, 100, 150, 0.2);
@@ -38,7 +37,6 @@
         }
         .heart::before { top: -50%; left: 0; }
         .heart::after { left: 50%; top: 0; }
-
         .heart:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 5%; }
         .heart:nth-child(2) { width: 60px; height: 60px; top: 25%; right: 10%; animation-delay: 2s; }
         .heart:nth-child(3) { width: 100px; height: 100px; bottom: 15%; left: 20%; animation-delay: 4s; }
@@ -57,54 +55,50 @@
             position: relative;
             z-index: 1;
             backdrop-filter: blur(5px);
-            width: 80%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 450px;
         }
 
         h1 {
             color: #d63384;
-            font-size: 28px;
+            font-size: 26px;
             margin-bottom: 40px;
         }
 
         .buttons {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 20px;
-            position: relative;
-            height: 60px;
+            min-height: 150px;
         }
 
         button {
-            padding: 12px 30px;
+            padding: 12px 25px;
             font-size: 18px;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
         }
 
         #yesBtn {
             background-color: #ff4d6d;
             color: white;
+            z-index: 2;
         }
 
         #noBtn {
             background-color: #6c757d;
             color: white;
-            position: absolute; /* Önceki koddaki gibi serbest hareket */
-            transition: all 0.15s ease; /* Hafif bir kayma efekti */
+            position: absolute;
+            z-index: 10;
         }
 
         .success-screen {
             display: none;
             text-align: center;
-        }
-
-        .success-screen h1 {
-            font-size: 40px;
-            color: #ff4d6d;
         }
     </style>
 </head>
@@ -118,32 +112,43 @@
         <h1 id="questionText">Will you be my Valentine? ❤️</h1>
         <div class="buttons">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onmouseover="moveButton()" ontouchstart="moveButton()">No</button>
+            <button id="noBtn" onmouseover="moveAndGrow()" ontouchstart="moveAndGrow()">No</button>
         </div>
     </div>
 
     <div id="successScreen" class="success-screen">
-        <h1> See you then!❤️❤️❤️</h1>
+        <h1 style="font-size: 40px; color: #ff4d6d;">Yay! See you then! 🥰</h1>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        let yesSize = 18;
+        let yesPaddingX = 25;
+        let yesPaddingY = 12;
 
-        function moveButton() {
-            // Ekran genişliği ve yüksekliğini al
+        function moveAndGrow() {
+            // 1. NO BUTONUNU HAREKET ETTİR
             const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
             const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
             
-            // Butonu rastgele koordinata taşı
+            noBtn.style.position = 'fixed';
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
-            noBtn.style.position = 'fixed'; // Tıklanmayı imkansızlaştırmak için sabit konuma geç
+
+            // 2. YES BUTONUNU BÜYÜT
+            yesSize += 5;
+            yesPaddingX += 5;
+            yesPaddingY += 3;
+            
+            yesBtn.style.fontSize = yesSize + 'px';
+            yesBtn.style.padding = `${yesPaddingY}px ${yesPaddingX}px`;
         }
 
         function celebrate() {
             confetti({
-                particleCount: 150,
-                spread: 70,
+                particleCount: 200,
+                spread: 100,
                 origin: { y: 0.6 }
             });
 
