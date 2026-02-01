@@ -18,7 +18,6 @@
             touch-action: none;
         }
 
-        /* Arka plan kalp animasyonu */
         .heart-bg {
             position: fixed;
             top: -10%;
@@ -30,20 +29,18 @@
         }
 
         @keyframes fall {
-            to {
-                transform: translateY(110vh) rotate(360deg);
-            }
+            to { transform: translateY(110vh) rotate(360deg); }
         }
 
         .container {
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             padding: 50px;
             border-radius: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             position: relative;
             z-index: 2;
-            backdrop-filter: blur(5px);
+            min-width: 300px;
         }
 
         h1 {
@@ -77,21 +74,20 @@
         #noBtn {
             background-color: #6c757d;
             color: white;
-            position: fixed;
-            z-index: 999;
-            transition: all 0.1s ease-out;
+            position: absolute; /* Container içinde kalması için absolute yaptık */
+            transition: all 0.2s ease-out;
+            z-index: 10;
         }
 
         .success-screen {
             display: none;
             text-align: center;
-            z-index: 2;
+            z-index: 5;
         }
 
         .success-screen h1 {
             font-size: 45px;
             color: #ff4d6d;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -106,12 +102,12 @@
     </div>
 
     <div id="successScreen" class="success-screen">
-        <h1>Yay! See you then! ❤️❤️❤️</h1>
-        <div style="font-size: 100px;">❤️</div>
+        <h1>Yay! See you then! 🥰</h1>
+        <div style="font-size: 100px; margin-top: 20px;">❤️</div>
     </div>
 
     <script>
-        // Arka plana sürekli kalp ekleyen fonksiyon
+        // Arka plan kalp yağmuru
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('heart-bg');
@@ -119,70 +115,53 @@
             heart.style.left = Math.random() * 100 + 'vw';
             heart.style.animationDuration = Math.random() * 3 + 2 + 's';
             heart.style.opacity = Math.random();
-            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
-            
             document.body.appendChild(heart);
-
-            setTimeout(() => {
-                heart.remove();
-            }, 5000);
+            setTimeout(() => heart.remove(), 5000);
         }
-
-        // Her 300ms'de bir yeni kalp oluştur
         setInterval(createHeart, 300);
 
         const noBtn = document.getElementById('noBtn');
+        const container = document.getElementById('quizContainer');
 
         function moveButton() {
-            const btnWidth = noBtn.offsetWidth;
-            const btnHeight = noBtn.offsetHeight;
-            const maxX = window.innerWidth - btnWidth - 50;
-            const maxY = window.innerHeight - btnHeight - 50;
+            // Container'ın boyutlarını al
+            const rect = container.getBoundingClientRect();
+            
+            // Butonun yeni pozisyonunu container sınırları içinde rastgele belirle
+            // Container dışına taşmaması için padding (20px) bıraktık
+            const padding = 20;
+            const maxX = rect.width - noBtn.offsetWidth - padding;
+            const maxY = rect.height - noBtn.offsetHeight - padding;
 
-            const randomX = Math.floor(Math.random() * maxX);
-            const randomY = Math.floor(Math.random() * maxY);
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
+            // Pozisyonu uygula
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
         function celebrate() {
-            // Konfeti Ayarları (Kalp şeklinde konfeti fırlatır)
             const scalar = 2;
             const heartShape = confetti.shapeFromText({ text: '❤️', scalar });
-
             const duration = 10 * 1000;
             const animationEnd = Date.now() + duration;
 
             const interval = setInterval(function() {
                 const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
 
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                // Hem normal renkli konfeti hem de kalp fırlat
                 confetti({
-                    particleCount: 40,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#ff4d6d', '#ff8fa3', '#ffb3c1', '#ffffff'],
-                    shapes: [heartShape, 'circle']
+                    particleCount: 30,
+                    spread: 60,
+                    origin: { x: Math.random(), y: 0.5 },
+                    colors: ['#ff4d6d', '#ff8fa3', '#ffffff'],
+                    shapes: [heartShape]
                 });
-                confetti({
-                    particleCount: 40,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#ff4d6d', '#ff8fa3', '#ffb3c1', '#ffffff'],
-                    shapes: [heartShape, 'circle']
-                });
-            }, 250);
+            }, 200);
 
-            document.getElementById('quizContainer').style.display = 'none';
+            container.style.display = 'none';
             document.getElementById('successScreen').style.display = 'block';
-            noBtn.style.display = 'none';
         }
     </script>
 </body>
