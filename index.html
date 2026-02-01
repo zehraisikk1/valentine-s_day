@@ -40,24 +40,22 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.1);
             position: relative;
             z-index: 5;
-            width: 400px;
-            min-height: 250px;
+            width: 450px;
+            min-height: 350px;
             backdrop-filter: blur(10px);
             border: 2px solid white;
         }
 
         h1 {
             color: #d63384;
-            font-size: 32px;
+            font-size: 30px;
             margin-bottom: 50px;
         }
 
-        .buttons {
+        .buttons-area {
             position: relative;
-            height: 100px; /* Butonların hareket alanı için yükseklik */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 200px;
+            width: 100%;
         }
 
         button {
@@ -67,15 +65,18 @@
             border-radius: 15px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.2s;
         }
 
         #yesBtn {
             background: linear-gradient(45deg, #ff4d6d, #ff758f);
             color: white;
             box-shadow: 0 10px 20px rgba(255, 77, 109, 0.4);
+            position: absolute;
+            left: 30%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             z-index: 20;
-            margin-right: 120px; /* No butonu için boşluk */
         }
 
         #noBtn {
@@ -83,10 +84,11 @@
             color: white;
             position: absolute;
             z-index: 10;
-            left: 55%; /* Başlangıç pozisyonu */
+            left: 70%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             transition: all 0.15s ease-out;
             user-select: none;
-            white-space: nowrap;
         }
 
         #successScreen {
@@ -108,17 +110,16 @@
             color: #ff4d6d;
             font-weight: 900;
             text-align: center;
-            animation: heartBeat 1.5s infinite;
-        }
-
-        @keyframes heartBeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
 
         .big-heart {
             font-size: 150px;
-            filter: drop-shadow(0 0 20px rgba(255, 77, 109, 0.5));
+            animation: heartBeat 1.2s infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
     </style>
 </head>
@@ -126,16 +127,16 @@
 
     <div class="container" id="quizContainer">
         <h1>Will you be my Valentine? ❤️</h1>
-        <div class="buttons" id="btnWrapper">
+        <div class="buttons-area" id="box">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onmouseover="moveButton()" onmousedown="moveButton()">No</button>
+            <button id="noBtn">No</button>
         </div>
     </div>
 
     <div id="successScreen">
         <div class="big-heart">💖</div>
         <div class="success-message">YAY! I KNEW IT! 🥰</div>
-        <p style="font-size: 24px; color: #d63384; font-weight: bold;">See you on February 14th! 🌹</p>
+        <p style="font-size: 24px; color: #d63384; margin-top: 20px;">See you on February 14th! 🌹</p>
     </div>
 
     <script>
@@ -152,20 +153,38 @@
         setInterval(createHeart, 300);
 
         const noBtn = document.getElementById('noBtn');
-        const wrapper = document.getElementById('btnWrapper');
+        const box = document.getElementById('box');
+        const proximityLimit = 80; // KAÇIŞ MESAFESİ (80 piksel kala kaçar)
+
+        // Fare hareketini tüm döküman üzerinde takip et
+        document.addEventListener('mousemove', (e) => {
+            const btnRect = noBtn.getBoundingClientRect();
+            
+            // Butonun merkezini hesapla
+            const btnCenterX = btnRect.left + btnRect.width / 2;
+            const btnCenterY = btnRect.top + btnRect.height / 2;
+
+            // Fare ile buton merkezi arasındaki mesafeyi hesapla (Pisagor teoremi)
+            const distance = Math.sqrt(
+                Math.pow(e.clientX - btnCenterX, 2) + 
+                Math.pow(e.clientY - btnCenterY, 2)
+            );
+
+            // Eğer fare belirlenen mesafeden daha yakınsa kaç!
+            if (distance < proximityLimit) {
+                moveButton();
+            }
+        });
 
         function moveButton() {
-            // Butonu "buttons" divi (wrapper) içinde hareket ettiriyoruz
-            const rect = wrapper.getBoundingClientRect();
-            
-            // Butonun wrapper dışına çıkmaması için sınırlar
-            const maxX = rect.width - noBtn.offsetWidth;
-            const maxY = rect.height - noBtn.offsetHeight;
+            const boxRect = box.getBoundingClientRect();
+            const maxX = boxRect.width - noBtn.offsetWidth;
+            const maxY = boxRect.height - noBtn.offsetHeight;
 
-            // Rastgele yeni pozisyon (wrapper koordinatlarına göre)
             const randomX = Math.floor(Math.random() * maxX);
             const randomY = Math.floor(Math.random() * maxY);
 
+            noBtn.style.transform = 'none'; 
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
@@ -175,33 +194,28 @@
             const screen = document.getElementById('successScreen');
             screen.style.display = 'flex';
 
-            const duration = 10 * 1000;
+            const duration = 15 * 1000;
             const end = Date.now() + duration;
 
             (function frame() {
                 confetti({
-                    particleCount: 7,
+                    particleCount: 3,
                     angle: 60,
                     spread: 55,
                     origin: { x: 0 },
-                    colors: ['#ff4d6d', '#ff758f']
+                    colors: ['#ff4d6d', '#ff8fa3']
                 });
                 confetti({
-                    particleCount: 7,
+                    particleCount: 3,
                     angle: 120,
                     spread: 55,
                     origin: { x: 1 },
-                    colors: ['#ff4d6d', '#ff758f']
+                    colors: ['#ff4d6d', '#ff8fa3']
                 });
-
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
 
-            confetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { y: 0.6 }
-            });
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
     </script>
 </body>
