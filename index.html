@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sürpriz!</title>
+    <title>Be My Valentine?</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body {
@@ -13,40 +13,41 @@
             height: 100vh;
             margin: 0;
             background-color: #ffe6e6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
             overflow: hidden;
+            touch-action: none; /* Mobilde kaydırmayı engellemek için */
         }
 
         .container {
             text-align: center;
             background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             position: relative;
-            max-width: 400px;
+            z-index: 1;
         }
 
         h1 {
             color: #d63384;
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 28px;
+            margin-bottom: 40px;
         }
 
         .buttons {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            height: 50px;
+            gap: 30px;
         }
 
         button {
-            padding: 10px 25px;
-            font-size: 18px;
+            padding: 15px 35px;
+            font-size: 20px;
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
             cursor: pointer;
-            transition: transform 0.2s;
+            font-weight: bold;
+            transition: transform 0.1s;
         }
 
         #yesBtn {
@@ -57,58 +58,83 @@
         #noBtn {
             background-color: #6c757d;
             color: white;
-            position: absolute;
+            position: fixed; /* Ekranın her yerine kaçabilmesi için */
+            z-index: 999;
+            transition: all 0.1s ease-out;
         }
 
-        .success-message {
+        .success-screen {
             display: none;
-            color: #ff4d6d;
-            font-size: 28px;
-            font-weight: bold;
-            animation: pop 0.5s ease-out;
+            text-align: center;
         }
 
-        @keyframes pop {
-            0% { transform: scale(0.5); }
-            100% { transform: scale(1); }
+        .success-screen h1 {
+            font-size: 40px;
+            color: #ff4d6d;
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="mainBox">
-        <h1 id="question">Benimle yemeğe çıkar mısın? 🌹</h1>
-        <div class="buttons" id="btnGroup">
-            <button id="yesBtn" onclick="celebrate()">Evet</button>
-            <button id="noBtn" onmouseover="moveButton()">Hayır</button>
+    <div class="container" id="quizContainer">
+        <h1 id="questionText">Will you be my Valentine? ❤️</h1>
+        <div class="buttons">
+            <button id="yesBtn" onclick="celebrate()">Yes</button>
+            <button id="noBtn" onmouseover="moveButton()" onclick="moveButton()">No</button>
         </div>
-        <div id="successMsg" class="success-message">Harika! ❤️</div>
+    </div>
+
+    <div id="successScreen" class="success-screen">
+        <h1>Yay! See you then! 🥰</h1>
     </div>
 
     <script>
+        const noBtn = document.getElementById('noBtn');
+
         function moveButton() {
-            const btn = document.getElementById('noBtn');
-            // Ekran sınırlarını hesapla
-            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
-            
-            btn.style.left = x + 'px';
-            btn.style.top = y + 'px';
+            // Butonun boyutlarını al
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            // Ekran sınırlarını al (kenarlardan biraz pay bırakarak)
+            const maxX = window.innerWidth - btnWidth - 50;
+            const maxY = window.innerHeight - btnHeight - 50;
+
+            // Rastgele yeni koordinatlar
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+
+            // Butonu yeni yerine ışınla
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
         }
 
         function celebrate() {
             // Konfeti patlat
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
-            // Ekranı güncelle
-            document.getElementById('question').style.display = 'none';
-            document.getElementById('btnGroup').style.display = 'none';
-            document.getElementById('successMsg').style.display = 'block';
-            document.body.style.backgroundColor = '#fff0f3';
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            // Ekranı temizle ve kutlama mesajını göster
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('successScreen').style.display = 'block';
+            noBtn.style.display = 'none';
         }
     </script>
 </body>
