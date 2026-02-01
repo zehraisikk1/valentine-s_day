@@ -22,12 +22,13 @@
 
         .container {
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             padding: 50px;
             border-radius: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            z-index: 1;
+            z-index: 1; /* Kutuyu temel seviyede tutuyoruz */
             backdrop-filter: blur(5px);
+            position: relative;
         }
 
         h1 { color: #d63384; margin-bottom: 40px; pointer-events: none; }
@@ -37,7 +38,7 @@
             justify-content: center;
             align-items: center;
             gap: 20px;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         button {
@@ -53,17 +54,16 @@
         #yesBtn {
             background-color: #ff4d6d;
             color: white;
-            z-index: 1;
+            position: relative;
         }
 
         #noBtn {
             background-color: #6c757d;
             color: white;
             position: fixed;
-            z-index: 999;
-            /* Akıcı takip için transition süresini hafif artırdım */
-            transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                        top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 9999; /* En yüksek değer: Her zaman en önde kalmasını sağlar */
+            transition: left 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        top 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .success-screen { display: none; text-align: center; }
@@ -75,61 +75,51 @@
         <h1>Will you be my Valentine? ❤️</h1>
         <div class="buttons">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onmouseover="moveAndGrow()" ontouchstart="moveAndGrow()">No</button>
+            <button id="noBtn" onmouseover="moveClose()" ontouchstart="moveClose()">No</button>
         </div>
     </div>
 
     <div id="successScreen" class="success-screen">
-        <h1 style="font-size: 45px; color: #ff4d6d;">Yay! SEE YOU THEN!! ❤️</h1>
+        <h1 style="font-size: 45px; color: #ff4d6d;">Yay! 🥰</h1>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
+        const container = document.getElementById('quizContainer');
         const yesBtn = document.getElementById('yesBtn');
         let yesScale = 1;
 
-        // Sayfa ilk açıldığında No butonunun başlangıç pozisyonu
         window.onload = () => {
-            resetNoButton();
-        };
-
-        function resetNoButton() {
             const rect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (rect.right + 20) + 'px';
             noBtn.style.top = rect.top + 'px';
-        }
+        };
 
-        function moveAndGrow() {
-            // EKRANIN MERKEZİNDE TUTMA MANTIĞI
-            // Ekranın sadece orta %60'lık kısmında hareket etmesini sağlıyoruz
-            const marginWidth = window.innerWidth * 0.2; // Kenarlardan %20 boşluk
-            const marginHeight = window.innerHeight * 0.2;
+        function moveClose() {
+            const rect = container.getBoundingClientRect();
             
-            const availableWidth = window.innerWidth * 0.6;
-            const availableHeight = window.innerHeight * 0.6;
+            // Hareket alanını kutunun etrafıyla sınırlıyoruz
+            const padding = 50;
+            const minX = rect.left - padding;
+            const maxX = rect.right + padding - noBtn.offsetWidth;
+            const minY = rect.top - padding;
+            const maxY = rect.bottom + padding - noBtn.offsetHeight;
 
-            const x = Math.random() * (availableWidth - noBtn.offsetWidth) + marginWidth;
-            const y = Math.random() * (availableHeight - noBtn.offsetHeight) + marginHeight;
+            const x = Math.random() * (maxX - minX) + minX;
+            const y = Math.random() * (maxY - minY) + minY;
             
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
 
-            // YES BUTONUNU BÜYÜT
-            yesScale += 0.25; // Her kaçışta %25 büyür
+            yesScale += 0.2;
             yesBtn.style.transform = `scale(${yesScale})`;
         }
 
         function celebrate() {
-            confetti({ 
-                particleCount: 200, 
-                spread: 100, 
-                origin: { y: 0.6 },
-                colors: ['#ff4d6d', '#ffccd5', '#ffffff']
-            });
+            confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('successScreen').style.display = 'block';
             noBtn.style.display = 'none';
-            document.body.style.backgroundColor = '#ffc0cb';
         }
     </script>
 </body>
