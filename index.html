@@ -12,26 +12,70 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #ffe6e6;
-            font-family: 'Arial', sans-serif;
+            background-color: #ffe6f2; /* Daha soft pembe */
+            font-family: 'Montserrat', sans-serif; /* Daha modern bir font */
             overflow: hidden;
-            touch-action: none; /* Mobilde kaydırmayı engellemek için */
+            touch-action: none;
+            position: relative;
+        }
+
+        /* Arka plan kalpleri */
+        .heart {
+            position: absolute;
+            background: rgba(255, 100, 150, 0.2);
+            transform: rotate(-45deg);
+            animation: floatHeart 15s infinite ease-in-out;
+            z-index: 0;
+        }
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 100, 150, 0.2);
+            border-radius: 50%;
+        }
+        .heart::before {
+            top: -50%;
+            left: 0;
+        }
+        .heart::after {
+            left: 50%;
+            top: 0;
+        }
+
+        /* Farklı boyutlarda ve pozisyonlarda kalpler */
+        .heart:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 5%; animation-duration: 12s; }
+        .heart:nth-child(2) { width: 60px; height: 60px; top: 25%; right: 10%; animation-duration: 15s; animation-delay: 2s; }
+        .heart:nth-child(3) { width: 100px; height: 100px; bottom: 15%; left: 20%; animation-duration: 10s; animation-delay: 4s; }
+        .heart:nth-child(4) { width: 70px; height: 70px; top: 50%; left: 15%; animation-duration: 14s; animation-delay: 6s; }
+        .heart:nth-child(5) { width: 90px; height: 90px; bottom: 5%; right: 25%; animation-duration: 11s; animation-delay: 8s; }
+        .heart:nth-child(6) { width: 50px; height: 50px; top: 40%; right: 5%; animation-duration: 13s; animation-delay: 1s; }
+
+
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
+            50% { transform: translateY(-20px) rotate(-45deg); opacity: 0.4; }
         }
 
         .container {
             text-align: center;
-            background: white;
+            background: rgba(255, 255, 255, 0.9); /* Hafif şeffaf arka plan */
             padding: 50px;
             border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); /* Daha belirgin gölge */
             position: relative;
-            z-index: 1;
+            z-index: 1; /* Kalplerin üzerinde görünmesini sağlar */
+            backdrop-filter: blur(5px); /* Hafif bulanıklık efekti */
+            -webkit-backdrop-filter: blur(5px); /* Safari desteği */
         }
 
         h1 {
             color: #d63384;
-            font-size: 28px;
+            font-size: 32px; /* Yazıyı biraz büyüttük */
             margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05); /* Hafif gölge */
         }
 
         .buttons {
@@ -48,17 +92,22 @@
             cursor: pointer;
             font-weight: bold;
             transition: transform 0.1s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Butonlara gölge */
         }
 
         #yesBtn {
             background-color: #ff4d6d;
             color: white;
+            transition: background-color 0.3s ease;
+        }
+        #yesBtn:hover {
+            background-color: #e03d5b;
         }
 
         #noBtn {
             background-color: #6c757d;
             color: white;
-            position: fixed; /* Ekranın her yerine kaçabilmesi için */
+            position: fixed;
             z-index: 999;
             transition: all 0.1s ease-out;
         }
@@ -69,12 +118,23 @@
         }
 
         .success-screen h1 {
-            font-size: 40px;
+            font-size: 45px; /* Başarı mesajını büyüttük */
             color: #ff4d6d;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
         }
+
+        /* Google Fonts entegrasyonu */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap');
     </style>
 </head>
 <body>
+
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
+    <div class="heart"></div>
 
     <div class="container" id="quizContainer">
         <h1 id="questionText">Will you be my Valentine? ❤️</h1>
@@ -92,25 +152,20 @@
         const noBtn = document.getElementById('noBtn');
 
         function moveButton() {
-            // Butonun boyutlarını al
             const btnWidth = noBtn.offsetWidth;
             const btnHeight = noBtn.offsetHeight;
 
-            // Ekran sınırlarını al (kenarlardan biraz pay bırakarak)
             const maxX = window.innerWidth - btnWidth - 50;
             const maxY = window.innerHeight - btnHeight - 50;
 
-            // Rastgele yeni koordinatlar
             const randomX = Math.floor(Math.random() * maxX);
             const randomY = Math.floor(Math.random() * maxY);
 
-            // Butonu yeni yerine ışınla
             noBtn.style.left = randomX + 'px';
             noBtn.style.top = randomY + 'px';
         }
 
         function celebrate() {
-            // Konfeti patlat
             const duration = 5 * 1000;
             const animationEnd = Date.now() + duration;
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -131,10 +186,10 @@
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
 
-            // Ekranı temizle ve kutlama mesajını göster
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('successScreen').style.display = 'block';
-            noBtn.style.display = 'none';
+            noBtn.style.display = 'none'; // Kaçan butonu gizle
+            document.body.style.backgroundColor = '#ffc0cb'; // Arka plan rengini değiştir
         }
     </script>
 </body>
